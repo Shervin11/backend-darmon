@@ -260,7 +260,9 @@ export const users = [
         "email": "dilafruz.rahimova@example.com",
         "password": "rahimova",
         "role": "doctor",
-        "phone": "+992 123 456 789"
+        "phone": "+992 123 456 789",
+        "diploma": "https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=80&w=800&auto=format&fit=crop",
+        "diplomaVerified": true
     },
     {
         "id": 2,
@@ -320,7 +322,9 @@ export const users = [
         "email": "saidjon.ismoilov@example.com",
         "password": "ismoilov",
         "role": "doctor",
-        "phone": "+992 987 654 321"
+        "phone": "+992 987 654 321",
+        "diploma": "https://images.unsplash.com/photo-1581056771107-24ca5f033842?q=80&w=800&auto=format&fit=crop",
+        "diplomaVerified": true
     },
     {
         "id": 3,
