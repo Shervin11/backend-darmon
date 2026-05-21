@@ -136,6 +136,14 @@ export class AppController {
     return this.appService.updateMessage(id, data);
   }
 
+  @Delete('messages/clear')
+  clearChat(
+    @Query('userId1') userId1: string,
+    @Query('userId2') userId2: string
+  ) {
+    return this.appService.clearChat(userId1, userId2);
+  }
+
   @Delete('messages/:id')
   deleteMessage(@Param('id') id: string) {
     return this.appService.deleteMessage(id);

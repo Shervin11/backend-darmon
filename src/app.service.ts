@@ -88,6 +88,7 @@ export class AppService {
     const index = this.users.findIndex((u) => u.id == id);
     if (index === -1) throw new NotFoundException('User not found');
     this.users[index] = { ...this.users[index], ...updateData };
+    this.saveData();
     return this.users[index];
   }
 
@@ -260,11 +261,11 @@ export class AppService {
     ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }
 
-  sendMessage(data: { senderId: number; receiverId: number; text: string }) {
+  sendMessage(data: { senderId: number; receiverId: number; text: string; audioUrl?: string }) {
     const newId = this.messages.length > 0
       ? Math.max(...this.messages.map((m) => Number(m.id) || 0)) + 1
       : 1;
-    const message = {
+    const message: any = {
       id: newId,
       senderId: Number(data.senderId),
       receiverId: Number(data.receiverId),
@@ -272,6 +273,9 @@ export class AppService {
       timestamp: new Date().toISOString(),
       isRead: false,
     };
+    if (data.audioUrl) {
+      message.audioUrl = data.audioUrl;
+    }
     this.messages.push(message);
     this.saveData();
     return message;
@@ -300,6 +304,18 @@ export class AppService {
         m.isRead = true;
       }
     });
+    this.saveData();
+    return { success: true };
+  }
+  
+  clearChat(userId1: string | number, userId2: string | number) {
+    this.messages = this.messages.filter(
+      (m) =>
+        !(
+          (m.senderId == userId1 && m.receiverId == userId2) ||
+          (m.senderId == userId2 && m.receiverId == userId1)
+        )
+    );
     this.saveData();
     return { success: true };
   }
