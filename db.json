@@ -94,6 +94,18 @@
       "time": "12:12",
       "symptoms": "",
       "status": "approved"
+    },
+    {
+      "id": 9,
+      "doctorId": 3,
+      "clientId": 7,
+      "doctorName": "Дилафрӯз Раҳимова",
+      "clientName": "Саттор Юсупов",
+      "specialty": "Терапевт",
+      "date": "2026-06-06",
+      "time": "12:12",
+      "symptoms": "",
+      "status": "approved"
     }
   ],
   "wishlist": [
@@ -120,10 +132,10 @@
           "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCPMHxGKk1s41YOdM3QoXjlBGgK5TORd7v5g&s"
         },
         {
-          "doctorId": 4,
-          "name": "Фаррух Саидзода",
-          "specialty": "Кардиолог",
-          "photo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyqOV2N4n8cKNDfGANT7QnwHWjrf-HCgXZcg&s"
+          "doctorId": 8,
+          "name": "Нигина Ашурова",
+          "specialty": "Невролог",
+          "photo": "https://randomuser.me/api/portraits/women/44.jpg"
         }
       ]
     }
