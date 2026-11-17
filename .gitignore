@@ -29,3 +29,8 @@ yarn-error.log*
 
 # NestJS / TypeScript
 *.tsbuildinfo
+# Data
+/uploads
+/data
+/backups
+/db.json

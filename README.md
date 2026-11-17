@@ -1,98 +1,98 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# DARMON — backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS API for the DARMON medical booking platform. Data lives in PostgreSQL (Drizzle ORM);
+uploaded files are stored on disk and served from `/files/…`.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+## Run
 
 ```bash
-$ npm install
+npm install
+docker compose up -d   # local PostgreSQL (optional, see below)
+npm run dev            # watch mode on http://localhost:3001
+npm test               # unit tests (schedule, phone numbers)
+npm run test:e2e       # HTTP tests on an in-memory database
 ```
 
-## Compile and run the project
+Without `DATABASE_URL` the API starts on an embedded PGlite database in `./data/pglite` — fine for
+development, **not for production**. Migrations in `drizzle/` are applied automatically on start.
+
+### Moving from `db.json`
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run db:import -- db.json   # into an empty database; keeps ids, moves inline images to UPLOAD_DIR
 ```
 
-## Run tests
+### Before going live
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run db:cleanup-demo          # dry run: lists demo accounts (example.com etc. or DEMO_EMAILS)
+npm run db:cleanup-demo -- --yes # deletes them and their data (admins are never touched)
 ```
 
-## Deployment
+### Schema changes
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Edit `src/db/schema.ts`, then `npm run db:generate` to create a new migration in `drizzle/`.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Environment
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+Copy `.env.example` to `.env` (it is loaded automatically on start).
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+| Variable             | Default               | Purpose                                                          |
+| -------------------- | --------------------- | ---------------------------------------------------------------- |
+| `JWT_SECRET`         | insecure dev value    | **Set in production.** Signs auth tokens.                        |
+| `DATABASE_URL`       | — (embedded PGlite)   | **Set in production.** PostgreSQL connection string.             |
+| `UPLOAD_DIR`         | `./uploads`           | Where uploaded files are stored                                  |
+| `PUBLIC_URL`         | `http://localhost:PORT` | Public base URL of the API, used for file links               |
+| `PORT`               | `3001`                | HTTP port                                                        |
+| `FRONTEND_URL`       | any origin            | Allowed CORS origin(s), comma-separated                          |
+| `APP_UTC_OFFSET`     | `+05:00`              | Time zone of appointment dates/times                             |
+| `GROQ_API_KEY`       | —                     | AI diploma verification                                          |
+| `TELEGRAM_BOT_TOKEN` | —                     | Notifications, reminders and password reset codes                |
+| `SMS_PROVIDER`       | — (off)               | `console` (log only) or `http` (see `src/notify/sms.service.ts`) |
+| `SMS_HTTP_URL`, `SMS_HTTP_TOKEN`, `SMS_SENDER` | — | SMS gateway endpoint, token and sender name             |
 
-## Resources
+## Roles
 
-Check out a few resources that may come in handy when working with NestJS:
+| Role        | Created by        | Can                                                                              |
+| ----------- | ----------------- | -------------------------------------------------------------------------------- |
+| `admin`     | database          | create clinics, set public holidays                                              |
+| `clinic`    | admin             | add doctors and registrars, edit its doctors, reports + CSV, front desk          |
+| `registrar` | its clinic        | front desk: book patients by phone / walk-in, approve, mark came / no-show, paid |
+| `doctor`    | its clinic        | schedule, visit length, time off, approve visits, medical records of its patients |
+| `client`    | self-registration | book, cancel, reschedule, review after a completed visit, own medical card       |
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Login works with an email or a phone number (local 9-digit numbers get `+992`).
 
-## Support
+## Appointments
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- Slots come from `GET /doctors/:id/slots?date=YYYY-MM-DD`: working hours, the doctor's visit length
+  (`slotMinutes`), time off, public holidays and existing bookings are all applied on the server.
+- Statuses: `pending → approved | rejected`, `approved → completed | no_show | cancelled`.
+  Approving declines overlapping pending requests. Patients may cancel or reschedule upcoming visits
+  (a reschedule goes back to `pending`).
+- Bookings made by the front desk are approved immediately and linked to an existing patient account by phone.
 
-## Stay in touch
+## Notifications
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Telegram first (if the user linked it in their profile), SMS as a fallback for patients. Texts are sent
+in the user's language (Tajik or Russian, saved when they switch the site language).
+Reminders go out 24 h and 1 h before approved visits (checked every minute, each sent once).
+The bot uses long polling, so no webhook is needed — run a single backend instance per bot token.
 
-## License
+## Backups
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+`scripts/backup.sh` dumps PostgreSQL and archives `UPLOAD_DIR` into `BACKUP_DIR`, keeping `BACKUP_KEEP` days.
+Run it nightly from cron (see the header of the script for the cron line and restore commands) and copy
+`backups/` to another machine or storage. Test a restore before relying on it.
+
+## Security model
+
+- Every route requires `Authorization: Bearer <token>` except the public catalogue (`/category`,
+  `/users?role=doctor`, doctor/clinic profiles, `/clinics`, `/doctors/:id/slots`, `/holidays`),
+  registration, login and password reset.
+- Passwords and reset codes are hashed with scrypt; reset codes expire after 15 minutes and 5 attempts.
+  The reset endpoint does not reveal whether an account exists.
+- Registration requires consent to personal data processing (stored as `consent_at`).
+- Medical records are visible only to the patient and to doctors the patient booked; every view and change
+  is written to `access_log`, and patients see it on their medical card page. Admins and registrars have no access.
+- Uploaded files get random names; there is no directory listing.

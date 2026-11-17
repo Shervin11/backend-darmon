@@ -1,0 +1,16 @@
+# Local PostgreSQL for development: docker compose up -d
+# then set DATABASE_URL=postgres://darmon:darmon@localhost:5432/darmon in .env
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: darmon
+      POSTGRES_PASSWORD: darmon
+      POSTGRES_DB: darmon
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
