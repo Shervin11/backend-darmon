@@ -33,6 +33,18 @@ npm run db:cleanup-demo -- --yes # deletes them and their data (admins are never
 
 Edit `src/db/schema.ts`, then `npm run db:generate` to create a new migration in `drizzle/`.
 
+## Deploy (Render + Neon)
+
+1. Create a PostgreSQL database on [Neon](https://neon.tech) and copy its connection string.
+2. On [Render](https://render.com): **New → Blueprint** → this repository. `render.yaml` creates the
+   `darmon-api` web service; paste `DATABASE_URL` and `FRONTEND_URL` (the Vercel URL of the frontend).
+   `JWT_SECRET` is generated, file links use Render's public URL automatically.
+3. Load demo data from your machine into the new database:
+   `DATABASE_URL="<neon url>" npm run db:import -- db.json && DATABASE_URL="<neon url>" npm run db:seed-demo`
+
+The free plan sleeps after 15 minutes idle (first request takes ~30–50 s) and has no persistent disk,
+so files uploaded on the server disappear after a restart.
+
 ## Environment
 
 Copy `.env.example` to `.env` (it is loaded automatically on start).

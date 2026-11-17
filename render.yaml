@@ -1,0 +1,22 @@
+# Render Blueprint: New → Blueprint → this repository.
+# DATABASE_URL (e.g. Neon) and FRONTEND_URL are asked for on first deploy.
+services:
+  - type: web
+    name: darmon-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /category
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GROQ_API_KEY
+        sync: false

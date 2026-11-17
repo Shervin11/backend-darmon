@@ -43,7 +43,9 @@ export function saveDataUrl(
 
 const publicBase = () =>
   (
-    process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3001}`
+    process.env.PUBLIC_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    `http://localhost:${process.env.PORT || 3001}`
   ).replace(/\/$/, '');
 
 /** Absolute URL for API responses; external URLs and empty values pass through. */
